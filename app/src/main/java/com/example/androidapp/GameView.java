@@ -1,10 +1,15 @@
 package com.example.androidapp;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.SoundPool;
+import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -23,11 +28,23 @@ public class GameView extends View {
     private Snake snake;
     private boolean move = false;
     private float mx, my;
+    public static boolean isPlaying = false;
+    public static int score = 0, bestScore = 0;
+    private Context context;
+    private int soundEat, soundDie;
+    private float volume;
+    private boolean loadedsound;
+    private SoundPool soundPool;
     private Handler handler;
     private Runnable r;
     private Apple apple;
     public GameView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
+        SharedPreferences sp = context.getSharedPreferences("gamesetting", Context.MODE_PRIVATE);
+        if (sp != null){
+            bestScore = sp.getInt("bestscore", 0);
+        }
         bmGrass1 = BitmapFactory.decodeResource(this.getResources(), R.drawable.grass);
         bmGrass1 = Bitmap.createScaledBitmap(bmGrass1, sizeOfMap, sizeOfMap, true);
         bmGrass2 = BitmapFactory.decodeResource(this.getResources(), R.drawable.grass03);
@@ -55,7 +72,22 @@ public class GameView extends View {
                 invalidate();
             }
         };
-
+        if (Build.VERSION.SDK_INT >= 21){
+            AudioAttributes audioAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+            SoundPool.Builder builder = new SoundPool.Builder();
+            builder.setAudioAttributes(audioAttributes).setMaxStreams(5);
+            this.soundPool = builder.build();
+        }else{
+            soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        }
+        this.soundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                loadedsound = true;
+            }
+        });
+        soundEat = this.soundPool.load(context, R.raw.eat, 1);
+        soundDie = this.soundPool.load(context, R.raw.die, 1);
     }
 
     @Override
@@ -68,22 +100,30 @@ public class GameView extends View {
                     my = event.getY();
                     move = true;
                 }else {
-                    if (mx - event.getX() > 100*Constants.SCREEN_WIDTH/1000 && !snake.isMove_right()){
+                    if (mx - event.getX() > 100 && !snake.isMove_right()){
                         mx = event.getX();
                         my = event.getY();
-                        snake.setMove_left(true);
-                    }else if (event.getX() - mx > 100*Constants.SCREEN_WIDTH/1000 && !snake.isMove_left()){
+                        this.snake.setMove_left(true);
+                        isPlaying = true;
+                        MainActivity.img_swipe.setVisibility(INVISIBLE);
+                    }else if (event.getX() - mx > 100 && !snake.isMove_left()){
                         mx = event.getX();
                         my = event.getY();
-                        snake.setMove_right(true);
-                    }else if (my - event.getY() > 100*Constants.SCREEN_WIDTH/1000 && !snake.isMove_bottom()){
+                        this.snake.setMove_right(true);
+                        isPlaying = true;
+                        MainActivity.img_swipe.setVisibility(INVISIBLE);
+                    }else if (my - event.getY() > 100 && !snake.isMove_bottom()){
                         mx = event.getX();
                         my = event.getY();
-                        snake.setMove_top(true);
-                    }else if (event.getY() - my > 100*Constants.SCREEN_WIDTH/1000 && !snake.isMove_top()){
+                        this.snake.setMove_top(true);
+                        isPlaying = true;
+                        MainActivity.img_swipe.setVisibility(INVISIBLE);
+                    }else if (event.getY() - my > 100 && !snake.isMove_top()){
                         mx = event.getX();
                         my = event.getY();
-                        snake.setMove_bottom(true);
+                        this.snake.setMove_bottom(true);
+                        isPlaying = true;
+                        MainActivity.img_swipe.setVisibility(INVISIBLE);
                     }
                 }
                 break;
@@ -105,15 +145,60 @@ public class GameView extends View {
         for(int i = 0; i < arrGrass.size(); i++){
             canvas.drawBitmap(arrGrass.get(i).getBm(), arrGrass.get(i).getX(), arrGrass.get(i).getY(), null);
         }
-        snake.update();
+        if (isPlaying){
+            snake.update();
+            if (snake.getArrPartSnake().get(0).getX() < this.arrGrass.get(0).getX() || snake.getArrPartSnake().get(0).getY() < this.arrGrass.get(0).getY() || snake.getArrPartSnake().get(0).getY() + sizeOfMap > this.arrGrass.get(this.arrGrass.size() - 1).getY() + sizeOfMap || snake.getArrPartSnake().get(0).getX() + sizeOfMap > this.arrGrass.get(this.arrGrass.size() - 1).getX() + sizeOfMap){
+                gameOver();
+            }
+            for (int i = 1; i < snake.getArrPartSnake().size(); i++){
+                if (snake.getArrPartSnake().get(0).getrBody().intersect(snake.getArrPartSnake().get(i).getrBody())){
+                    gameOver();
+                }
+            }
+        }
         snake.draw(canvas);
         apple.draw(canvas);
         if (snake.getArrPartSnake().get(0).getrBody().intersect(apple.getR())){
-            randomApple();
+            if (loadedsound){
+                int streamId = this.soundPool.play(this.soundEat, (float)0.5, (float) 0.5, 1, 0, 1f);
+            }
             apple.reset(arrGrass.get(randomApple()[0]).getX(), arrGrass.get(randomApple()[1]).getY());
             snake.addPart();
+            score++;
+            MainActivity.txt_score.setText(score +"");
+            if (score > bestScore){
+                bestScore = score;
+                SharedPreferences sp = context.getSharedPreferences("gamesetting", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.putInt("bestscore", bestScore);
+                editor.apply();
+                MainActivity.txt_best_score.setText(bestScore + "");
+            }
         }
         handler.postDelayed(r, 100);
+    }
+    private void gameOver(){
+        isPlaying = false;
+        MainActivity.dialogScore.show();
+        MainActivity.txt_dialog_best_score.setText(bestScore + "");
+        MainActivity.txt_dialog_score.setText(score + "");
+        if (loadedsound){
+            int streamId = this.soundPool.play(this.soundDie, (float) 0.5, (float) 0.5, 1, 0, 1f);
+        }
+    }
+    public void reset(){
+        for (int i = 0; i < h; i++){
+            for (int j = 0; j < w; j++){
+                if ((j + i) % 2 == 0){
+                    arrGrass.add(new Grass(bmGrass1, j * bmGrass1.getWidth() + Constants.SCREEN_WIDTH/2 - (w/2)*bmGrass1.getWidth(), i * bmGrass1.getHeight() + 50 * Constants.SCREEN_HEIGHT/1920, bmGrass1.getWidth(), bmGrass1.getHeight()));
+                }else{
+                    arrGrass.add(new Grass(bmGrass2, j * bmGrass2.getWidth() + Constants.SCREEN_WIDTH/2 - (w/2) * bmGrass2.getWidth(), i * bmGrass2.getHeight() + 50 * Constants.SCREEN_HEIGHT/1920, bmGrass2.getWidth(), bmGrass2.getHeight()));
+                }
+            }
+        }
+        snake = new Snake(bmSnake, arrGrass.get(126).getX(), arrGrass.get(126).getY(), 4);
+        apple = new Apple(bmApple, arrGrass.get(randomApple()[0]).getX(), arrGrass.get(randomApple()[1]).getY());
+        score = 0;
     }
 
     public int[] randomApple() {
