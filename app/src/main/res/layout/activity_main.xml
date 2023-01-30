@@ -1,16 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/button"
-    android:layout_width="match_parent"
+<RelativeLayout android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#070000"
-    android:backgroundTint="#070000"
-    android:backgroundTintMode="add"
-    android:foregroundTint="#0DA513"
-    android:foregroundTintMode="add"
-    tools:context=".MainActivity">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <com.example.androidapp.GameView
         android:id="@+id/gv"
         android:layout_width="match_parent"
@@ -18,7 +10,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:background="#102B00"
+        android:background="#0C2200"
         android:alpha="0.8"
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
@@ -26,20 +18,21 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_gravity="center">
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_centerInParent="true">
                 <ImageView
+                    android:id="@+id/img_apple"
                     android:src="@drawable/apple"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"/>
                 <TextView
                     android:id="@+id/txt_score"
-                    android:textColor="#ffffff"
                     android:textSize="30sp"
                     android:text=" x 0"
                     android:layout_width="wrap_content"
@@ -49,21 +42,22 @@
         <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_gravity="center">
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_centerInParent="true">
                 <ImageView
+                    android:id="@+id/img_cup"
                     android:src="@drawable/baseline_emoji_events_24"
-                    app:tint="#FFEB3B"
+                    app:tint="#fff0"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:scaleType="fitXY"/>
                 <TextView
                     android:id="@+id/txt_best_score"
-                    android:textColor="#ffffff"
                     android:textSize="30sp"
                     android:text=" x 0"
                     android:layout_width="wrap_content"
@@ -71,4 +65,13 @@
             </LinearLayout>
         </RelativeLayout>
     </LinearLayout>
+    <ImageView
+        android:id="@+id/img_swipe"
+        android:visibility="invisible"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/swipe"
+        android:scaleType="fitXY"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"/>
 </RelativeLayout>

@@ -8,34 +8,32 @@ import java.util.ArrayList;
 public class Snake {
     private boolean move_left, move_right, move_top, move_bottom;
     private Bitmap bm, bm_head_up, bm_head_down, bm_head_left, bm_head_right, bm_body_vertical, bm_body_horizontal, bm_body_top_right, bm_body_top_left, bm_body_bottom_right, bm_body_bottom_left, bm_tail_right, bm_tail_left, bm_tail_up, bm_tail_down;
-    private int x, y, length;
+    private int length;
     private ArrayList<PartSnake> arrPartSnake = new ArrayList<>();
 
     public Snake(Bitmap bm, int x, int y, int length) {
         this.bm = bm;
-        this.x = x;
-        this.y = y;
         this.length = length;
-        bm_body_bottom_left = Bitmap.createBitmap(bm, 0, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_body_bottom_right = Bitmap.createBitmap(bm, GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_body_horizontal = Bitmap.createBitmap(bm, 2*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_body_top_left = Bitmap.createBitmap(bm, 3*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_body_top_right = Bitmap.createBitmap(bm, 4*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_body_vertical = Bitmap.createBitmap(bm, 5*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_head_down = Bitmap.createBitmap(bm, 6*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_head_left = Bitmap.createBitmap(bm, 7*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_head_right = Bitmap.createBitmap(bm, 8*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_head_up = Bitmap.createBitmap(bm, 9*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_tail_up = Bitmap.createBitmap(bm, 10*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_tail_right = Bitmap.createBitmap(bm, 11*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_tail_left = Bitmap.createBitmap(bm, 12*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
-        bm_tail_down = Bitmap.createBitmap(bm, 13*GameView.sizeOfMap, 0, GameView.sizeOfMap, GameView.sizeOfMap);
+        bm_body_bottom_left = Bitmap.createBitmap(bm, 0, 0, bm.getWidth()/14, bm.getHeight());
+        bm_body_bottom_right = Bitmap.createBitmap(bm, bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_body_horizontal = Bitmap.createBitmap(bm, 2*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_body_top_left = Bitmap.createBitmap(bm, 3*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_body_top_right = Bitmap.createBitmap(bm, 4*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_body_vertical = Bitmap.createBitmap(bm, 5*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_head_down = Bitmap.createBitmap(bm, 6*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_head_left = Bitmap.createBitmap(bm, 7*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_head_right = Bitmap.createBitmap(bm, 8*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_head_up = Bitmap.createBitmap(bm, 9*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_tail_up = Bitmap.createBitmap(bm, 10*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_tail_right = Bitmap.createBitmap(bm, 11*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_tail_left = Bitmap.createBitmap(bm, 12*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        bm_tail_down = Bitmap.createBitmap(bm, 13*bm.getWidth()/14, 0, bm.getWidth()/14, bm.getHeight());
+        setMove_right(true);
         arrPartSnake.add(new PartSnake(bm_head_right, x, y));
         for (int i = 1; i < length - 1; i++){
             arrPartSnake.add(new PartSnake(bm_body_horizontal, arrPartSnake.get(i - 1).getX() - GameView.sizeOfMap, y));
         }
-        arrPartSnake.add(new PartSnake(bm_tail_right, arrPartSnake.get(length - 2).getX() - GameView.sizeOfMap, y));
-        setMove_right(true);
+        arrPartSnake.add(new PartSnake(bm_tail_right, arrPartSnake.get(length - 2).getX() - GameView.sizeOfMap, arrPartSnake.get(length - 2).getY()));
     }
 
     public void update() {
@@ -69,6 +67,16 @@ public class Snake {
                 arrPartSnake.get(i).setBm(bm_body_vertical);
             } else if (arrPartSnake.get(i).getrLeft().intersect(arrPartSnake.get(i + 1).getrBody()) && arrPartSnake.get(i).getrRight().intersect(arrPartSnake.get(i - 1).getrBody()) || arrPartSnake.get(i).getrLeft().intersect(arrPartSnake.get(i - 1).getrBody()) && arrPartSnake.get(i).getrRight().intersect(arrPartSnake.get(i + 1).getrBody())) {
                 arrPartSnake.get(i).setBm(bm_body_horizontal);
+            }else{
+                if (move_right){
+                    arrPartSnake.get(i).setBm(bm_body_horizontal);
+                } else if (move_bottom){
+                    arrPartSnake.get(i).setBm(bm_body_vertical);
+                } else if (move_top) {
+                    arrPartSnake.get(i).setBm(bm_body_vertical);
+                }else {
+                    arrPartSnake.get(i).setBm(bm_body_horizontal);
+                }
             }
         }
         if (arrPartSnake.get(length - 1).getrRight().intersect(arrPartSnake.get(length - 2).getrBody())) {
@@ -77,7 +85,7 @@ public class Snake {
             arrPartSnake.get(length - 1).setBm(bm_tail_left);
         }else if (arrPartSnake.get(length - 1).getrTop().intersect(arrPartSnake.get(length - 2).getrBody())) {
             arrPartSnake.get(length - 1).setBm(bm_tail_up);
-        }else if (arrPartSnake.get(length - 1).getrBottom().intersect(arrPartSnake.get(length - 2).getrBody())) {
+        }else {
             arrPartSnake.get(length - 1).setBm(bm_tail_down);
         }
     }
@@ -207,23 +215,6 @@ public class Snake {
     public void setBm_tail_down(Bitmap bm_tail_down) {
         this.bm_tail_down = bm_tail_down;
     }
-
-    public int getX() {
-        return x;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
-    }
-
     public int getLength() {
         return length;
     }
