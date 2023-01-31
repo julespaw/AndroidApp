@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +18,8 @@ public class MainActivity extends AppCompatActivity {
     public static ImageView img_swipe;
     public static Dialog dialogScore;
     private GameView gv;
-    public static TextView txt_score, txt_best_score, txt_dialog_score, txt_dialog_best_score;
+    public static TextView txt_score, txt_best_score, txt_dialog_score, txt_dialog_best_score, txt_level;
+    public static SeekBar seekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +35,33 @@ public class MainActivity extends AppCompatActivity {
         txt_score = findViewById(R.id.txt_score);
         txt_best_score = findViewById(R.id.txt_best_score);
         dialogScore();
+
+
+
     }
+//    private void seekBar() {
+//        this.getWindowManager().getDefaultDisplay();
+//        this.seekBar = findViewById(R.id.seekBar);
+//        this.txt_level = findViewById(R.id.txt_level);
+//
+//        this.seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+//                txt_level.setText("Level: " + String.valueOf(i));
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//            }
+//        });
+//
+//    }
     private void dialogScore(){
         int bestScore = 0;
         SharedPreferences sp = this.getSharedPreferences("gamesetting", Context.MODE_PRIVATE);
@@ -45,6 +73,25 @@ public class MainActivity extends AppCompatActivity {
         dialogScore.setContentView(R.layout.dialog_start);
         txt_dialog_score = dialogScore.findViewById(R.id.txt_dialog_score);
         txt_dialog_best_score = dialogScore.findViewById(R.id.txt_dialog_best_score);
+        seekBar = dialogScore.findViewById(R.id.seekBar);
+        txt_level = dialogScore.findViewById(R.id.txt_level);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                txt_level.setText("Level: " + String.valueOf(i));
+                
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         txt_dialog_best_score.setText(bestScore + "");
         dialogScore.setCanceledOnTouchOutside(false);
         RelativeLayout rl_start = dialogScore.findViewById(R.id.rl_start);
@@ -57,5 +104,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         dialogScore.show();
+
     }
 }
